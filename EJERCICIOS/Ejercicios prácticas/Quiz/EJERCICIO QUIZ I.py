@@ -1,3 +1,10 @@
+
+from itertools import product
+from multiprocessing.sharedctypes import Value
+import types
+from unicodedata import name
+
+
 products = {
     "mobiles": {
         "Apple": [
@@ -95,27 +102,62 @@ products = {
     },
 }
 
-print('**** Bienvenido a la tienda de dispositivos electronicos! ****')
+print('------------------------')
+print('---BEST BUY VENEZUELA---')
+print('------------------------')
+
 while True:
-    seleccion = (input('Seleccione una opcion: \n-1. Ver inventario \n-2. Registrar compra \n-3. Salir \n-'))
-    tipos_disponibles = {1: 'mobiles', 2: 'laptops'}
-    if seleccion == 1:
-        for tipos,marcas in products.items():
-            for nombre_marca, products.list in marcas.items():
-               print(marcas)
-               for products in products.list: 
-                  id = products.get('id')
-                  product_name = products.get('nombre')
-                  price = products.get('precio')
-                  print(f'id:{id} - name:{product_name} - price:{price}')
-    elif seleccion == 2:
-        name = input('Por favor ingrese su nombre: ')
-        id_card = input('Por favor ingrese el id de su tarjeta: ')
-        product_id = input('Por favor ingrese el id del producto')
+    print('1. SEE INVENTORY')
+    print('2. REGISTER PURCHASE')
+    print('3. EXIT THE VIRTUAL STORE')
+    print()
+    option = int(input('--->'))
+    print()
+    available_devices = {1: 'mobiles', 2: 'laptops'} 
+    
+    if option == 1:
+       for types,brands in products.items():
+           for brand_name, product_list in brands.items():
+                print(brand_name)
+                for product in product_list:
+                    id = product.get('id')
+                    product_name = product.get('name')
+                    price = product.get('price')
+                    print(f'id:{id} - name:{product_name} - price:{price}')
+    
+    elif option == 2:
+        name = input('Please enter your name: ')
+        id_card = input('Please enter your id card: ')
+        product_id = input('Please enter your id card: ')
+        client = {}
+        client['name'] = name
+        client['id_card'] = id_card
+        client['product_id'] = product_id
+        product_selected = None
+
+    for types,brands in products.items():
+           for brand_name, product_list in brands.items():
+                for product in product_list:
+                    if product.get('id') == id :
+                        product_selected = product
+                        
+
+    if product_selected:
+        client = {}
+        name = input('Please enter your name: ')
+        id_card = input('Please enter your id card: ')
+        product_id = input('Please enter your id card: ')
+        client['name'] = name
+        client['id_card'] = id_card
+        client['product_id'] = product_id
+        print('---RECEIPT---')
+        for key,value in client.items():
+            if key == product_id:
+                print()
+            else:
+                print(f'Your {key} is {value}')
+
         
 
-    elif seleccion == 3:
-        break
-        
-
+    
 
