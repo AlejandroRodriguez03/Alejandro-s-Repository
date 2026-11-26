@@ -35,6 +35,20 @@ Abre `index.html` en el navegador (doble clic). No necesita instalar nada ni con
 
 Para cubrirte, ve hacia atrás: de pie contra los pasos aéreos y agachado contra las barridas. La barra de SABROSURA llega hasta el nivel 3 (MAX) y cada súper gasta un nivel. Si te conectan muchos pasos seguidos te mareas (los círculos de arriba avisan).
 
+## Tu música
+
+El juego trae música original con el sonido de la banda: reggae, funk, dembow y percusión caribeña. No incluye canciones de Rawayana porque tienen derechos de autor. Para bailar con una canción de verdad, toca el botón **Tu música** debajo de la consola y escoge un archivo de audio de tu teléfono o computadora. Suena en todo el juego hasta que lo quites.
+
+## Usar imágenes reales de los integrantes
+
+El juego puede usar ilustraciones en vez de los muñecos dibujados con código:
+
+1. Pon las imágenes en `arte/<integrante>/<pose>.png`. Los integrantes son `beto`, `abeja`, `fofo` y `tony`. Las poses son `quieto`, `golpe`, `patada`, `golpeado`, `suelo`, `victoria`, `especial`, `agachado`, `salto` y `retrato`; solo `quieto` es obligatoria. Los fondos sin personajes van en `arte/escenarios/barrio.png`, `roques.png` y `avila.png`.
+2. Cada imagen debe mostrar al integrante de cuerpo entero, mirando a la derecha, con fondo transparente o de un solo color (por ejemplo verde).
+3. Ejecuta `python3 herramientas/preparar_arte.py` (necesita `pip install pillow numpy`). La herramienta quita el fondo, recorta, escala y genera `js/arte.js`.
+
+Si falta una pose, el juego usa la más parecida que haya.
+
 ## Integrantes
 
 | Integrante | Instrumento | Estilo | Súper |
@@ -64,7 +78,7 @@ En cada pista, los dos integrantes que no están bailando animan desde la tarima
 
 ## Cómo está hecho
 
-Todo es HTML, CSS y JavaScript sin librerías. Los gráficos se dibujan píxel a píxel desde el código (no hay imágenes): los bailarines son "marionetas" de píxeles con sombreado de 4 tonos, y la música chiptune es original y se genera con WebAudio.
+Todo es HTML, CSS y JavaScript sin librerías. Si no hay imágenes en `arte/`, los gráficos se dibujan píxel a píxel desde el código. La música es original y se genera con WebAudio.
 
 | Archivo | Qué hace |
 |---|---|
@@ -74,6 +88,7 @@ Todo es HTML, CSS y JavaScript sin librerías. Los gráficos se dibujan píxel a
 | `js/audio.js` | Música chiptune, efectos de sonido y locutor |
 | `js/entrada.js` | Teclado, mandos y botones táctiles |
 | `js/personajes.js` | Datos y apariencia de los cuatro integrantes |
+| `js/arte.js` | Imágenes reales (las genera `herramientas/preparar_arte.py`) |
 | `js/sprites.js` | Poses, dibujo de los bailarines y retratos |
 | `js/escenarios.js` | Los tres escenarios con paralaje y público |
 | `js/efectos.js` | Chispas, notas musicales y proyectiles |

@@ -96,6 +96,17 @@
     R(ctx, x + w - 2, y, 2, h, borde || '#ffd24a');
   };
 
+  // Oscurece arriba y abajo para que se lea el texto sobre los fondos
+  ui.velo = function (ctx) {
+    const g = ctx.createLinearGradient(0, 0, 0, RW.ALTO);
+    g.addColorStop(0, 'rgba(14, 6, 40, 0.75)');
+    g.addColorStop(0.35, 'rgba(14, 6, 40, 0.15)');
+    g.addColorStop(0.75, 'rgba(14, 6, 40, 0.2)');
+    g.addColorStop(1, 'rgba(14, 6, 40, 0.85)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, RW.ANCHO, RW.ALTO);
+  };
+
   ui.marco = function (ctx, x, y, w, h, color, grosor) {
     grosor = grosor || 1;
     for (let i = 0; i < grosor; i++) {
@@ -209,24 +220,35 @@
       if (E().pulsado('START') || E().pulsado('A')) { RW.audio.sfx('aceptar'); RW.juego.cambiar(S.menu); }
     },
     dibujar(ctx) {
-      ui.fondoTitulo(ctx, this.t);
-      const P = RW.POSES;
+      // Caracas al atardecer de fondo, moviéndose despacio
+      RW.escenario('barrio').dibujar(ctx, 208 + Math.sin(this.t * 0.004) * 200, this.t, 0.5, null);
+      ui.velo(ctx);
+      ui.logo(ctx, CX, 8, true);
+      // Los cuatro integrantes en tarjetas, bailando por turnos
+      const fondos = ['#c85a8a', '#3a6ad8', '#7a4ac8', '#3a7ad8'];
       RW.PERSONAJES.forEach((pj, i) => {
-        const t = this.t + i * 11;
-        let pose = [P.q1, P.q2, P.q3, P.q4][Math.floor(t / 8) % 4];
-        if (Math.floor(t / 120) % 4 === i) pose = Math.floor(t / 20) % 2 ? RW.posePj(pj.id, 'victoria3') : P.victoria1;
-        const x = 60 + i * 88;
-        RW.sprites.sombra(ctx, x, 210, 44);
-        RW.sprites.dibujar(ctx, pj, pose, 0, x, 210, i < 2 ? 1 : -1);
+        const turno = Math.floor(this.t / 20) % 4 === i;
+        const x = 52 + i * 74, y = 96 - (turno ? 4 : 0);
+        ui.parale(ctx, x - 3, y - 3, 70, 72, 6, OSCURO);
+        ui.parale(ctx, x - 1, y - 1, 66, 68, 5, '#e8e4f8');
+        ui.parale(ctx, x + 1, y + 1, 62, 64, 4, fondos[i]);
+        ctx.save();
+        ctx.beginPath(); ctx.rect(x + 1, y + 1, 66, 64); ctx.clip();
+        ctx.drawImage(RW.sprites.retrato(pj, 0, turno ? 'feliz' : 'normal', 64), x + 2, y + 1);
+        ctx.restore();
+        RW.textoEstilo(ctx, pj.nombre, x + 34, y + 70, turno ? 'oro' : 'blanco', 1, 'centro');
       });
-      ui.logo(ctx, CX, 6, true);
-      if (this.t % 50 < 34) RW.textoEstilo(ctx, 'PRESIONA START', CX, 180, 'blanco', 2, 'centro');
+      if (this.t % 50 < 36) {
+        ui.parale(ctx, 104, 182, 176, 18, 8, OSCURO);
+        ui.parale(ctx, 106, 184, 172, 14, 7, '#ff4a8a');
+        RW.textoEstilo(ctx, 'PRESIONA START', CX + 4, 188, 'blanco', 1, 'centro');
+      }
       RW.texto(ctx, 'JUEGO DE FANS · NO OFICIAL', CX, 206, '#e8dcff', { alinear: 'centro', contorno: OSCURO });
     },
   };
 
   const OPCIONES_MENU = [
-    { txt: 'ARCADE', desc: 'Baila contra los otros tres integrantes, del barrio hasta El Ávila.', modo: 'arcade' },
+    { txt: 'ARCADE', desc: 'Baila contra los otros tres, del barrio hasta El Ávila.', modo: 'arcade' },
     { txt: 'VS CPU', desc: 'Un duelo libre contra la CPU: escoges a los dos y la pista.', modo: 'vscpu' },
     { txt: '2 JUGADORES', desc: 'Duelo entre dos personas en el mismo teclado o con dos mandos.', modo: '2j' },
     { txt: 'ENTRENAMIENTO', desc: 'Practica los pasos y combos sin reloj contra un muñeco.', modo: 'entreno' },
@@ -253,18 +275,41 @@
       }
     },
     dibujar(ctx) {
-      ui.fondoTitulo(ctx, this.t, 0.4);
-      ui.logo(ctx, CX, 8, false);
-      ui.panel(ctx, 112, 74, 160, 118);
-      menuVertical(ctx, OPCIONES_MENU.map((o) => o.txt), this.sel, 128, 84, 140, this.t);
-      R(ctx, 0, 196, W(), 20, 'rgba(12,4,30,0.85)');
-      RW.partirTexto(OPCIONES_MENU[this.sel].desc.toUpperCase(), 372).slice(0, 2).forEach((l, i) => RW.texto(ctx, l, CX, 198 + i * 9, '#e8dcff', { alinear: 'centro' }));
-      // Un integrante bailando a cada lado
-      const P = RW.POSES;
-      const ciclo = [P.q1, P.q2, P.q3, P.q4];
-      const a = RW.PERSONAJES[Math.floor(this.t / 240) % 4], b = RW.PERSONAJES[(Math.floor(this.t / 240) + 2) % 4];
-      RW.sprites.dibujar(ctx, a, ciclo[Math.floor(this.t / 8) % 4], 0, 56, 196, 1);
-      RW.sprites.dibujar(ctx, b, ciclo[Math.floor(this.t / 8 + 2) % 4], 0, 328, 196, -1);
+      // El Ávila y Caracas de fondo, como en la pantalla de selección
+      RW.escenario('avila').dibujar(ctx, 120 + Math.sin(this.t * 0.003) * 110, this.t, 0.3, null);
+      const g = ctx.createLinearGradient(0, 0, 250, 0);
+      g.addColorStop(0, 'rgba(14, 6, 40, 0.92)');
+      g.addColorStop(1, 'rgba(14, 6, 40, 0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 250, RW.ALTO);
+      // Logo pequeño
+      ctx.fillStyle = '#ff4a8a';
+      ctx.beginPath(); ctx.moveTo(14, 36); ctx.lineTo(160, 31); ctx.lineTo(152, 39); ctx.lineTo(18, 42); ctx.fill();
+      RW.textoEstilo(ctx, 'RAWAYANA', 16, 10, 'oro', 3);
+      RW.textoEstilo(ctx, 'DUELO DE BAILE', 18, 42, 'blanco', 1);
+      // Opciones en barras inclinadas
+      OPCIONES_MENU.forEach((o, i) => {
+        const s = i === this.sel;
+        const x = 14 + (s ? 10 + Math.round(Math.sin(this.t * 0.15) * 1) : 0), y = 60 + i * 22;
+        ui.parale(ctx, x - 2, y - 2, 178, 22, 8, OSCURO);
+        if (s) {
+          const gr = ctx.createLinearGradient(x, 0, x + 180, 0);
+          gr.addColorStop(0, '#ff4a8a'); gr.addColorStop(1, '#ffb83a');
+          ui.parale(ctx, x, y, 174, 18, 7, gr);
+          ui.parale(ctx, x, y, 174, 3, 1, 'rgba(255,255,255,0.45)');
+        } else {
+          ui.parale(ctx, x, y, 174, 18, 7, 'rgba(58, 36, 110, 0.92)');
+        }
+        RW.textoEstilo(ctx, o.txt, x + 14, y + 6, s ? 'blanco' : 'blanco', s ? 2 : 1);
+        if (s) RW.texto(ctx, '▶', x - 10, y + 6, '#ffd24a', { contorno: OSCURO });
+      });
+      // A la derecha, el integrante que "presenta" cada opción
+      const pj = RW.PERSONAJES[this.sel % 4];
+      const bote = Math.round(Math.sin(this.t * 0.12) * 2);
+      ctx.drawImage(RW.sprites.retrato(pj, 0, 'feliz', 128), 252, 54 + bote);
+      ui.placaNombre(ctx, 252, 176, pj.nombre, pj.color);
+      R(ctx, 0, 204, W(), 12, 'rgba(12,4,30,0.88)');
+      RW.texto(ctx, OPCIONES_MENU[this.sel].desc.toUpperCase(), CX, 207, '#e8dcff', { alinear: 'centro' });
     },
   };
 

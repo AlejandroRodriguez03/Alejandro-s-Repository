@@ -932,4 +932,126 @@
     }
     return cacheRetratos.get(clave);
   };
+
+  // =====================================================================
+  // Imágenes reales de los integrantes (si existen en RW.ARTE_DATOS).
+  // Las prepara herramientas/preparar_arte.py. Si no hay, se usan los
+  // muñecos dibujados con código.
+  // =====================================================================
+  Object.keys(POSES).forEach((k) => { POSES[k]._nombre = k; });
+  Object.keys(POSES_PJ).forEach((id) => Object.keys(POSES_PJ[id]).forEach((k) => { POSES_PJ[id][k]._nombre = k; }));
+
+  // Qué imagen usar para cada pose del juego (en orden de preferencia)
+  const MAPA_ARTE = [
+    [/^(q\d|c\d|dj\d|aterrizaje|moon\d|dashAdelante)$/, ['quieto']],
+    [/^(ag|agLigero\d|agFuerte1|guardiaAgachado|barrida1|dp1)$/, ['agachado', 'quieto']],
+    [/^(saltoArriba|saltoMedio|saltoAbajo|voltereta\d|dp3)$/, ['salto', 'quieto']],
+    [/^(proy1|proy2|super1|super2|dp2)$/, ['especial', 'golpe', 'quieto']],
+    [/^(ligero\d|fuerte\d|agarre\d|aereoLigero|aereoFuerte|agFuerte2)$/, ['golpe', 'quieto']],
+    [/^(patada\d|barrida2|aereoPatada|giro\d)$/, ['patada', 'golpe', 'quieto']],
+    [/^(golpeAlto|golpeBajo|golpeAgachado|guardia|mareado\d|lanzado\d|derribado)$/, ['golpeado', 'quieto']],
+    [/^(acostado|levantarse1)$/, ['suelo', 'golpeado', 'quieto']],
+    [/^(victoria\d|provocar\d|levantarse2)$/, ['victoria', 'quieto']],
+  ];
+
+  const imagenes = {};
+  function canvasDe(img, espejo) {
+    const c = RW.crearCanvas(img.width, img.height);
+    const g = c.getContext('2d');
+    if (espejo) { g.translate(img.width, 0); g.scale(-1, 1); }
+    g.drawImage(img, 0, 0);
+    return c;
+  }
+  (function cargarArte() {
+    const datos = RW.ARTE_DATOS || {};
+    Object.keys(datos).forEach((id) => {
+      imagenes[id] = {};
+      Object.keys(datos[id]).forEach((nombre) => {
+        const img = new Image();
+        const reg = { listo: false };
+        img.onload = () => { reg.normal = canvasDe(img, false); reg.espejo = canvasDe(img, true); reg.listo = true; };
+        img.src = datos[id][nombre];
+        imagenes[id][nombre] = reg;
+      });
+    });
+  })();
+
+  RW.arte = {
+    imagen(id, nombre) {
+      const r = imagenes[id] && imagenes[id][nombre];
+      return r && r.listo ? r : null;
+    },
+    escenario(id) { return RW.arte.imagen('escenarios', id); },
+  };
+
+  function arteParaPose(id, pose) {
+    if (!imagenes[id]) return null;
+    const nombre = pose._nombre || '';
+    for (const [re, lista] of MAPA_ARTE) {
+      if (!re.test(nombre)) continue;
+      for (const n of lista) { const r = RW.arte.imagen(id, n); if (r) return r; }
+      return null;
+    }
+    return RW.arte.imagen(id, 'quieto');
+  }
+
+  function dibujarArte(ctx, r, pose, pal, x, y, mirando, blanco) {
+    let img = mirando < 0 ? r.espejo : r.normal;
+    if (blanco) {
+      const k = mirando < 0 ? 'blancoE' : 'blanco';
+      if (!r[k]) r[k] = RW.silueta(img, '#ffffff');
+      img = r[k];
+    }
+    const n = pose._nombre || '';
+    let dx = (pose.cx || 0) * 2 * mirando, dy = 0, rot = 0;
+    const m = /^(q|c)(\d)$/.exec(n);
+    if (m) dy = [0, 2, 1, 3][parseInt(m[2], 10) - 1];        // bote al ritmo
+    if (n === 'dj2') dy = 2;
+    if (/^(voltereta|lanzado)/.test(n)) rot = pose.giro;
+    if (n === 'derribado') rot = -50;
+    if (n === 'golpeAlto' || n === 'golpeBajo') rot = -7;
+    if (/^(ligero2|fuerte2|patada2|proy2|super2|agarre1)$/.test(n)) dx += 8 * mirando;
+    ctx.save();
+    if (pal === 1 && 'filter' in ctx) ctx.filter = 'hue-rotate(150deg) saturate(1.15)';
+    ctx.translate(Math.round(x + dx), Math.round(y + dy));
+    if (rot) {
+      ctx.translate(0, -img.height / 2);
+      ctx.rotate((rot * Math.PI / 180) * mirando);
+      ctx.translate(0, img.height / 2);
+    }
+    ctx.drawImage(img, -Math.round(img.width / 2), -img.height);
+    ctx.restore();
+  }
+
+  const dibujarMuneco = RW.sprites.dibujar;
+  RW.sprites.dibujar = function (ctx, pj, pose, pal, x, y, mirando, blanco) {
+    const r = arteParaPose(pj.id, pose);
+    if (r) { dibujarArte(ctx, r, pose, pal, x, y, mirando, blanco); return; }
+    dibujarMuneco(ctx, pj, pose, pal, x, y, mirando, blanco);
+  };
+
+  const retratoMuneco = RW.sprites.retrato;
+  const cacheRetratosArte = new Map();
+  RW.sprites.retrato = function (pj, pal, expresion, tam) {
+    const r = RW.arte.imagen(pj.id, 'retrato');
+    if (!r) return retratoMuneco(pj, pal, expresion, tam);
+    tam = tam || 64;
+    const clave = pj.id + '|' + (pal || 0) + '|' + (expresion || 'normal') + '|' + tam;
+    if (!cacheRetratosArte.has(clave)) {
+      const c = RW.crearCanvas(tam, tam);
+      const g = c.getContext('2d');
+      g.imageSmoothingEnabled = true;
+      g.imageSmoothingQuality = 'high';
+      if ('filter' in g) {
+        const f = [];
+        if (pal === 1) f.push('hue-rotate(150deg)');
+        if (expresion === 'derrota') f.push('grayscale(0.6) brightness(0.8)');
+        if (f.length) g.filter = f.join(' ');
+      }
+      const lado = Math.min(r.normal.width, r.normal.height);
+      g.drawImage(r.normal, (r.normal.width - lado) / 2, 0, lado, lado, 0, 0, tam, tam);
+      cacheRetratosArte.set(clave, c);
+    }
+    return cacheRetratosArte.get(clave);
+  };
 })();

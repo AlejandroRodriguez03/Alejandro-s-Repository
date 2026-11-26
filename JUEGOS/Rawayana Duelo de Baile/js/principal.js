@@ -176,6 +176,28 @@
       });
     }
     pintarSonido();
+    // Tu música: el jugador escoge una canción de su teléfono o computadora
+    const btnMusica = document.getElementById('btnMusica');
+    const archivo = document.getElementById('archivoMusica');
+    if (btnMusica && archivo) {
+      btnMusica.addEventListener('click', () => {
+        btnMusica.blur();
+        if (RW.audio.tienePropia()) {
+          RW.audio.quitarCancionPropia();
+          btnMusica.textContent = 'Tu música';
+          return;
+        }
+        archivo.click();
+      });
+      archivo.addEventListener('change', () => {
+        const f = archivo.files && archivo.files[0];
+        if (!f) return;
+        if (!J.encendida) J.encender();
+        const nombre = RW.audio.cancionPropia(f);
+        if (nombre) btnMusica.textContent = 'Quitar: ' + (nombre.length > 22 ? nombre.slice(0, 21) + '…' : nombre);
+        archivo.value = '';
+      });
+    }
     J.aplicarLcd();
     document.addEventListener('fullscreenchange', ajustarPantalla);
   }

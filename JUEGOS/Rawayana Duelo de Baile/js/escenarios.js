@@ -590,7 +590,21 @@
   RW.escenario = function (id) {
     if (!creados[id]) {
       const datos = RW.ESCENARIOS.find((e) => e.id === id) || RW.ESCENARIOS[0];
-      creados[id] = Object.assign({ id: datos.id, datos }, datos.crear());
+      const base = datos.crear();
+      creados[id] = {
+        id: datos.id,
+        datos,
+        // Si hay una imagen real del escenario, se usa como fondo; si no, el dibujado con código
+        dibujar(ctx, camPx, t, animo, djs) {
+          const fondo = RW.arte && RW.arte.escenario(datos.id);
+          if (!fondo) { base.dibujar(ctx, camPx, t, animo, djs); return; }
+          const img = fondo.normal;
+          const sobra = Math.max(0, img.width - RW.ANCHO);
+          const desp = Math.round((camPx / (MUNDO_PX - RW.ANCHO)) * sobra);
+          ctx.drawImage(img, -desp, RW.ALTO - img.height);
+          tarimaDJ(ctx, 400 - Math.round(camPx), t, djs, datos.color);
+        },
+      };
     }
     return creados[id];
   };
