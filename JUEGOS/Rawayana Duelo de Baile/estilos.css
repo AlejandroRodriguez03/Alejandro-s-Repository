@@ -12,6 +12,7 @@
   --boton: #2d2547;
   --boton-luz: #4a3f6e;
   --acento: #ffcc3d;
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: light) {
@@ -20,13 +21,22 @@
     --fondo-2: #dccbff;
     --texto: #23164a;
     --texto-suave: #5b4b86;
+    color-scheme: light;
   }
+}
+:root[data-theme="light"] {
+  --fondo: #f4ecff;
+  --fondo-2: #dccbff;
+  --texto: #23164a;
+  --texto-suave: #5b4b86;
+  color-scheme: light;
 }
 :root[data-theme="dark"] {
   --fondo: #150c2b;
   --fondo-2: #2a1650;
   --texto: #efe7ff;
   --texto-suave: #b8a9dc;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -47,7 +57,9 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  padding: 28px 16px 24px;
+  padding-block: 28px 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
 /* ---------- Consola ---------- */
