@@ -6,11 +6,13 @@ al trabajar en este repositorio.
 ## Sobre el proyecto
 
 - Repositorio personal de ejercicios de programación en Python.
-- Todo el código está en la carpeta `EJERCICIOS/`:
+- Los ejercicios están en la carpeta `EJERCICIOS/`:
   - `Ejercicios clases/`: ejercicios hechos en clase.
   - `Ejercicios prácticas/`: prácticas agrupadas por temas (`1.0 - 3.0`, `4.0 - 6.0`, `Quiz`).
   - `Ejercicios prepas/`: ejercicios de preparación.
 - Cada ejercicio es un script independiente (`EJERCICIO N.py`); no hay dependencias externas.
+- `JUEGOS/Rawayana Duelo de Baile/`: juego de baile estilo 16 bits en HTML, CSS y JavaScript
+  (sin librerías). Se abre con `index.html`; su README explica controles y estructura.
 
 ## Cómo ejecutar
 

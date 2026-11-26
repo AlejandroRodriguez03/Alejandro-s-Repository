@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#1a1033">
+  <title>Rawayana: Duelo de Baile</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <main class="escena">
+    <div class="consola" id="consola">
+      <!-- Botones de hombro -->
+      <button class="hombro hombro-l" data-boton="L" aria-label="Botón L">L</button>
+      <button class="hombro hombro-r" data-boton="R" aria-label="Botón R">R</button>
+
+      <!-- Lado izquierdo: cruceta -->
+      <div class="lado lado-izq">
+        <div class="cruceta" id="cruceta" aria-label="Cruceta">
+          <span class="cruz-h"></span><span class="cruz-v"></span><span class="cruz-centro"></span>
+          <span class="flecha f-arriba"></span><span class="flecha f-abajo"></span>
+          <span class="flecha f-izq"></span><span class="flecha f-der"></span>
+        </div>
+      </div>
+
+      <!-- Centro: pantalla -->
+      <div class="centro">
+        <div class="bisel">
+          <div class="bisel-sup">
+            <span class="led" id="led"></span>
+            <span class="bisel-texto">PANTALLA ANCHA 16 BITS</span>
+            <span class="notas"><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div class="marco-pantalla" id="marcoPantalla">
+            <canvas id="pantalla" width="384" height="216"></canvas>
+            <div class="lcd" id="filtroLcd"></div>
+          </div>
+        </div>
+        <div class="marca">
+          <span class="marca-nombre">RAWAYANA</span>
+          <span class="marca-sub">PORTÁTIL 16 BITS</span>
+        </div>
+      </div>
+
+      <!-- Lado derecho: botones A y B -->
+      <div class="lado lado-der">
+        <div class="botones-ab">
+          <button class="boton boton-b" data-boton="B" aria-label="Botón B">B</button>
+          <button class="boton boton-a" data-boton="A" aria-label="Botón A">A</button>
+        </div>
+      </div>
+
+      <!-- Abajo: SELECT y START -->
+      <div class="inferior">
+        <div class="pastilla"><button data-boton="SELECT" aria-label="Select"></button><span>SELECT</span></div>
+        <div class="pastilla"><button data-boton="START" aria-label="Start"></button><span>START</span></div>
+      </div>
+      <div class="altavoz"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <section class="panel">
+      <div class="panel-botones">
+        <button id="btnPantallaCompleta" type="button">Pantalla completa</button>
+        <button id="btnLcd" type="button">Filtro LCD: sí</button>
+        <button id="btnSonido" type="button">Sonido: sí</button>
+      </div>
+      <details class="ayuda">
+        <summary>Controles del teclado</summary>
+        <div class="tablas">
+          <table>
+            <caption>Jugador 1</caption>
+            <tr><td>Moverse</td><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> (o flechas en 1 jugador)</td></tr>
+            <tr><td>A: paso ligero</td><td><kbd>J</kbd> o <kbd>Z</kbd></td></tr>
+            <tr><td>B: paso fuerte</td><td><kbd>K</kbd> o <kbd>X</kbd></td></tr>
+            <tr><td>R: patada</td><td><kbd>L</kbd> o <kbd>C</kbd></td></tr>
+            <tr><td>L: súper / pose</td><td><kbd>I</kbd> o <kbd>V</kbd></td></tr>
+            <tr><td>START / pausa</td><td><kbd>Enter</kbd></td></tr>
+          </table>
+          <table>
+            <caption>Jugador 2</caption>
+            <tr><td>Moverse</td><td>Flechas</td></tr>
+            <tr><td>A: paso ligero</td><td><kbd>,</kbd> o <kbd>Num 1</kbd></td></tr>
+            <tr><td>B: paso fuerte</td><td><kbd>.</kbd> o <kbd>Num 2</kbd></td></tr>
+            <tr><td>R: patada</td><td><kbd>-</kbd> o <kbd>Num 3</kbd></td></tr>
+            <tr><td>L: súper / pose</td><td><kbd>M</kbd> o <kbd>Num 0</kbd></td></tr>
+            <tr><td>START / pausa</td><td><kbd>Retroceso</kbd> o <kbd>Num Enter</kbd></td></tr>
+          </table>
+        </div>
+        <p>También funciona con mandos (gamepad) y con los botones táctiles de la consola. <kbd>Esc</kbd> vuelve atrás en los menús y pausa el combate.</p>
+      </details>
+      <p class="aviso">Juego de fans sin fines de lucro, no oficial. Hecho con cariño para la banda.</p>
+    </section>
+  </main>
+
+  <!-- Módulos del juego (el orden importa) -->
+  <script src="js/base.js"></script>
+  <script src="js/fuente.js"></script>
+  <script src="js/pixel.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/entrada.js"></script>
+  <script src="js/personajes.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/escenarios.js"></script>
+  <script src="js/efectos.js"></script>
+  <script src="js/luchador.js"></script>
+  <script src="js/ia.js"></script>
+  <script src="js/combate.js"></script>
+  <script src="js/pantallas.js"></script>
+  <script src="js/principal.js"></script>
+</body>
+</html>
