@@ -969,7 +969,11 @@
       Object.keys(datos[id]).forEach((nombre) => {
         const img = new Image();
         const reg = { listo: false };
-        img.onload = () => { reg.normal = canvasDe(img, false); reg.espejo = canvasDe(img, true); reg.listo = true; };
+        img.onload = () => {
+          reg.normal = canvasDe(img, false); reg.espejo = canvasDe(img, true);
+          reg.normal._escala = 2; reg.espejo._escala = 2;      // vienen al doble de resolución
+          reg.listo = true;
+        };
         img.src = datos[id][nombre];
         imagenes[id][nombre] = reg;
       });
@@ -1002,6 +1006,7 @@
       if (!r[k]) r[k] = RW.silueta(img, '#ffffff');
       img = r[k];
     }
+    const w = img.width / 2, h = img.height / 2;     // tamaño en la pantalla del juego
     const n = pose._nombre || '';
     let dx = (pose.cx || 0) * 2 * mirando, dy = 0, rot = 0;
     const m = /^(q|c)(\d)$/.exec(n);
@@ -1015,11 +1020,11 @@
     if (pal === 1 && 'filter' in ctx) ctx.filter = 'hue-rotate(150deg) saturate(1.15)';
     ctx.translate(Math.round(x + dx), Math.round(y + dy));
     if (rot) {
-      ctx.translate(0, -img.height / 2);
+      ctx.translate(0, -h / 2);
       ctx.rotate((rot * Math.PI / 180) * mirando);
-      ctx.translate(0, img.height / 2);
+      ctx.translate(0, h / 2);
     }
-    ctx.drawImage(img, -Math.round(img.width / 2), -img.height);
+    ctx.drawImage(img, -w / 2, -h, w, h);
     ctx.restore();
   }
 
@@ -1038,7 +1043,8 @@
     tam = tam || 64;
     const clave = pj.id + '|' + (pal || 0) + '|' + (expresion || 'normal') + '|' + tam;
     if (!cacheRetratosArte.has(clave)) {
-      const c = RW.crearCanvas(tam, tam);
+      const c = RW.crearCanvas(tam * 2, tam * 2);
+      c._escala = 2;
       const g = c.getContext('2d');
       g.imageSmoothingEnabled = true;
       g.imageSmoothingQuality = 'high';
@@ -1049,7 +1055,7 @@
         if (f.length) g.filter = f.join(' ');
       }
       const lado = Math.min(r.normal.width, r.normal.height);
-      g.drawImage(r.normal, (r.normal.width - lado) / 2, 0, lado, lado, 0, 0, tam, tam);
+      g.drawImage(r.normal, (r.normal.width - lado) / 2, 0, lado, lado, 0, 0, tam * 2, tam * 2);
       cacheRetratosArte.set(clave, c);
     }
     return cacheRetratosArte.get(clave);

@@ -14,7 +14,9 @@ Estructura que espera (los nombres pueden estar en mayúsculas o minúsculas):
     arte/beto/especial.png    haciendo su especial
     arte/beto/agachado.png    agachado (opcional)
     arte/beto/salto.png       en el aire (opcional)
-    arte/beto/retrato.png     cara para el HUD y la selección (opcional)
+    arte/beto/retrato.png     cara para el HUD y la selección (opcional, se usa tal cual)
+    arte/beto/busto.png       medio cuerpo para la selección (opcional)
+    arte/beto/dj.png          medio cuerpo pinchando, para la tarima del DJ (opcional)
     (lo mismo para abeja, fofo y tony)
     arte/escenarios/barrio.png, roques.png, avila.png   fondos sin personajes
 
@@ -38,14 +40,17 @@ CARPETA_ARTE = os.path.join(RAIZ, "arte")
 SALIDA = os.path.join(RAIZ, "js", "arte.js")
 
 INTEGRANTES = ["beto", "abeja", "fofo", "tony"]
-# Alto en píxeles de pantalla de cada pose (el juego se ve a 384x216)
+# Alto de cada pose en píxeles (el doble de lo que ocupa en la pantalla de 384x216,
+# porque el juego dibuja las imágenes reales a doble resolución)
 ALTOS = {
-    "quieto": 122, "golpe": 120, "patada": 118, "golpeado": 116, "victoria": 126,
-    "especial": 122, "agachado": 86, "salto": 104, "suelo": 52,
+    "quieto": 244, "golpe": 240, "patada": 236, "golpeado": 232, "victoria": 252,
+    "especial": 244, "agachado": 172, "salto": 208, "suelo": 104,
 }
-ANCHO_MAX = 170
-TAM_RETRATO = 128
-ESCENARIO = (800, 216)
+ALTO_BUSTO = 224
+ALTO_DJ = 140      # medio cuerpo detrás de la mesa del DJ
+ANCHO_MAX = 340
+TAM_RETRATO = 256
+ESCENARIO = (1600, 432)
 EXTENSIONES = (".png", ".jpg", ".jpeg", ".webp")
 
 
@@ -148,9 +153,16 @@ def main():
                 original_quieto = img
             poses[pose] = a_data_uri(escalar_alto(img, alto))
             print(f"  {pj}/{pose}: listo")
+        for extra, alto_extra in (("busto", ALTO_BUSTO), ("dj", ALTO_DJ)):
+            ruta_extra = buscar(carpeta, extra)
+            if ruta_extra:
+                img = recortar(quitar_fondo(Image.open(ruta_extra)))
+                factor = alto_extra / img.height
+                poses[extra] = a_data_uri(img.resize((round(img.width * factor), alto_extra), Image.LANCZOS))
+                print(f"  {pj}/{extra}: listo")
         ruta_ret = buscar(carpeta, "retrato")
         if ruta_ret:
-            img = recortar(quitar_fondo(Image.open(ruta_ret)))
+            img = Image.open(ruta_ret).convert("RGBA")
             lado = min(img.width, img.height)
             img = img.crop(((img.width - lado) // 2, 0, (img.width - lado) // 2 + lado, lado))
             poses["retrato"] = a_data_uri(img.resize((TAM_RETRATO, TAM_RETRATO), Image.LANCZOS))

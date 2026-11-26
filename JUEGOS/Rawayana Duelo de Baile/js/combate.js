@@ -553,7 +553,7 @@
       ctx.fillStyle = L.pj.color;
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(RW.ANCHO, y - 10); ctx.lineTo(RW.ANCHO, y + 46); ctx.lineTo(0, y + 56); ctx.fill();
       for (let i = 0; i < RW.ANCHO; i += 16) R(ctx, (i + s.t * 6) % RW.ANCHO, y - 6, 6, 60, 'rgba(255,255,255,0.12)');
-      ctx.drawImage(RW.sprites.retrato(L.pj, L.paleta, 'normal', 72), 8, y - 14);
+      RW.dibujarImg(ctx, RW.sprites.retrato(L.pj, L.paleta, 'normal', 72), 8, y - 14);
       RW.textoEstilo(ctx, '¡SÚPER!', 90, y + 6, 'oro', 3);
       RW.textoEstilo(ctx, L.pj.especiales.super.nombre, 92, y + 34, 'blanco', 1);
       ctx.restore();
@@ -603,8 +603,8 @@
       ctx.rect(x + 2, y + 2, w - 4, h - 4);
       ctx.clip();
       const ret = RW.sprites.retrato(l.pj, l.paleta, l.vida <= l.vidaMax * 0.25 ? 'derrota' : 'normal', 52);
-      if (izq) ctx.drawImage(ret, x - 2, y - 4);
-      else { ctx.translate(x + w + 2, y - 4); ctx.scale(-1, 1); ctx.drawImage(ret, 0, 0); }
+      if (izq) RW.dibujarImg(ctx, ret, x - 2, y - 4);
+      else { ctx.translate(x + w + 2, y - 4); ctx.scale(-1, 1); RW.dibujarImg(ctx, ret, 0, 0); }
       ctx.restore();
     }
 

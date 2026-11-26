@@ -85,6 +85,12 @@ window.RW = window.RW || {};
     return c;
   };
 
+  // Dibuja una imagen respetando su escala interna (las imágenes reales vienen al doble de resolución).
+  RW.dibujarImg = function (ctx, img, x, y, w, h) {
+    const e = img._escala || 1;
+    ctx.drawImage(img, Math.round(x), Math.round(y), w || img.width / e, h || img.height / e);
+  };
+
   // Rectángulo con coordenadas enteras (para que todo se vea pixelado y nítido).
   RW.rect = function (ctx, x, y, w, h, color) {
     ctx.fillStyle = color;

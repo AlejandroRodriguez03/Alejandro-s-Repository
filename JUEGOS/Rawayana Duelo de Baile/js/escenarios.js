@@ -161,13 +161,21 @@
     // Los integrantes detrás de la mesa (un poco más al fondo y en penumbra)
     const base = PISO - 22;
     if ('filter' in ctx) ctx.filter = 'brightness(0.78) saturate(0.9)';
-    (djs || []).forEach((pj, i) => {
-      const x = xc + (i === 0 ? -30 : 30);
+    // Solo aparecen los integrantes que tienen imagen real (los muñecos de código no)
+    const conArte = (djs || []).filter((pj) => RW.arte && (RW.arte.imagen(pj.id, 'dj') || RW.arte.imagen(pj.id, 'quieto')));
+    conArte.sort((a, b) => (RW.arte.imagen(b.id, 'dj') ? 1 : 0) - (RW.arte.imagen(a.id, 'dj') ? 1 : 0));
+    conArte.forEach((pj, i) => {
+      const dj = RW.arte.imagen(pj.id, 'dj');
       const golpe = Math.floor((t + i * 17) / 15) % 4;
-      let pose;
-      if (i === 0) pose = golpe % 2 ? P.dj1 : P.dj2;
-      else pose = golpe === 3 ? P.dj3 : (golpe % 2 ? P.dj2 : P.q2);
-      RW.sprites.dibujar(ctx, pj, pose, 0, x, base, i === 0 ? 1 : -1);
+      if (dj) {
+        const w = dj.normal.width / 2, h = dj.normal.height / 2;
+        const bote = golpe % 2 ? 1 : 0;
+        RW.dibujarImg(ctx, dj.normal, xc - w / 2 + (conArte.length > 1 ? -18 : 0), base - 44 - h + 14 + bote);
+      } else {
+        const x = xc + (i === 0 ? (conArte.length > 1 ? 40 : 0) : 46);
+        const pose = golpe === 3 ? P.dj3 : (golpe % 2 ? P.dj2 : P.q2);
+        RW.sprites.dibujar(ctx, pj, pose, 0, x, base, -1);
+      }
     });
     if ('filter' in ctx) ctx.filter = 'none';
     // Mesa
@@ -599,9 +607,10 @@
           const fondo = RW.arte && RW.arte.escenario(datos.id);
           if (!fondo) { base.dibujar(ctx, camPx, t, animo, djs); return; }
           const img = fondo.normal;
-          const sobra = Math.max(0, img.width - RW.ANCHO);
+          const w = img.width / 2, h = img.height / 2;
+          const sobra = Math.max(0, w - RW.ANCHO);
           const desp = Math.round((camPx / (MUNDO_PX - RW.ANCHO)) * sobra);
-          ctx.drawImage(img, -desp, RW.ALTO - img.height);
+          ctx.drawImage(img, -desp, RW.ALTO - h, w, h);
           tarimaDJ(ctx, 400 - Math.round(camPx), t, djs, datos.color);
         },
       };

@@ -234,7 +234,7 @@
         ui.parale(ctx, x + 1, y + 1, 62, 64, 4, fondos[i]);
         ctx.save();
         ctx.beginPath(); ctx.rect(x + 1, y + 1, 66, 64); ctx.clip();
-        ctx.drawImage(RW.sprites.retrato(pj, 0, turno ? 'feliz' : 'normal', 64), x + 2, y + 1);
+        RW.dibujarImg(ctx, RW.sprites.retrato(pj, 0, turno ? 'feliz' : 'normal', 64), x + 2, y + 1);
         ctx.restore();
         RW.textoEstilo(ctx, pj.nombre, x + 34, y + 70, turno ? 'oro' : 'blanco', 1, 'centro');
       });
@@ -306,7 +306,9 @@
       // A la derecha, el integrante que "presenta" cada opción
       const pj = RW.PERSONAJES[this.sel % 4];
       const bote = Math.round(Math.sin(this.t * 0.12) * 2);
-      ctx.drawImage(RW.sprites.retrato(pj, 0, 'feliz', 128), 252, 54 + bote);
+      const bustoReal = RW.arte && RW.arte.imagen(pj.id, 'busto');
+      if (bustoReal) RW.dibujarImg(ctx, bustoReal.normal, 380 - bustoReal.normal.width / 2, 204 - bustoReal.normal.height / 2 + bote);
+      else RW.dibujarImg(ctx, RW.sprites.retrato(pj, 0, 'feliz', 128), 252, 54 + bote);
       ui.placaNombre(ctx, 252, 176, pj.nombre, pj.color);
       R(ctx, 0, 204, W(), 12, 'rgba(12,4,30,0.88)');
       RW.texto(ctx, OPCIONES_MENU[this.sel].desc.toUpperCase(), CX, 207, '#e8dcff', { alinear: 'centro' });
@@ -398,7 +400,7 @@
         R(ctx, x + 1, y + 1, 58, 62, fondos[i]);
         ctx.save();
         ctx.beginPath(); ctx.rect(x + 1, y + 1, 58, 62); ctx.clip();
-        ctx.drawImage(RW.sprites.retrato(pj, 0, 'normal', 64), x - 2, y);
+        RW.dibujarImg(ctx, RW.sprites.retrato(pj, 0, 'normal', 64), x - 2, y);
         ctx.restore();
       });
       for (let i = 1; i >= 0; i--) {
@@ -425,10 +427,11 @@
         const pal = i === 1 && this.cursor[0] === this.cursor[1] ? 1 : 0;
         const izq = i === 0;
         const expr = this.listo[i] ? 'feliz' : 'normal';
-        const busto = RW.sprites.retrato(pj, pal, expr, 104);
+        const bustoReal = RW.arte && RW.arte.imagen(pj.id, 'busto');
+        const busto = bustoReal ? bustoReal.normal : RW.sprites.retrato(pj, pal, expr, 104);
         const bote = this.listo[i] && this.tListo[i] < 20 ? -Math.round(Math.sin(this.tListo[i] * 0.3) * 4) : 0;
-        if (izq) ctx.drawImage(busto, -4, 112 + bote);
-        else { ctx.save(); ctx.translate(W() + 4, 112 + bote); ctx.scale(-1, 1); ctx.drawImage(busto, 0, 0); ctx.restore(); }
+        if (izq) RW.dibujarImg(ctx, busto, -4, 112 + bote);
+        else { ctx.save(); ctx.translate(W() + 4, 112 + bote); ctx.scale(-1, 1); RW.dibujarImg(ctx, busto, 0, 0); ctx.restore(); }
         const px = solo ? 128 : (izq ? 98 : 192);
         ui.placaNombre(ctx, solo ? px : px - 4, 118, pj.nombre, izq ? '#7af03a' : '#ff4a6a');
         const b = pj.barras;
@@ -528,11 +531,11 @@
       const entra = Math.min(1, t / 14);
       const x1 = Math.round(-140 + entra * 158), x2 = Math.round(W() + 12 - entra * 158);
       const pal2 = this.p1.id === this.p2.id ? 1 : 0;
-      ctx.drawImage(RW.sprites.retrato(this.p1, 0, 'normal', 128), x1, 26);
+      RW.dibujarImg(ctx, RW.sprites.retrato(this.p1, 0, 'normal', 128), x1, 26);
       ctx.save();
       ctx.translate(x2 + 128, 26);
       ctx.scale(-1, 1);
-      ctx.drawImage(RW.sprites.retrato(this.p2, pal2, 'normal', 128), 0, 0);
+      RW.dibujarImg(ctx, RW.sprites.retrato(this.p2, pal2, 'normal', 128), 0, 0);
       ctx.restore();
       RW.textoEstilo(ctx, this.p1.nombre, x1 + 64, 160, 'oro', 3, 'centro');
       RW.textoEstilo(ctx, this.p2.nombre, x2 + 64, 160, 'oro', 3, 'centro');
@@ -580,11 +583,11 @@
         ui.parale(ctx, 10, 14, 122, 124, 7, '#ffffff');
         ui.parale(ctx, 12, 16, 118, 120, 6, g.color);
         ctx.save(); ctx.beginPath(); ctx.rect(12, 16, 124, 120); ctx.clip();
-        ctx.drawImage(RW.sprites.retrato(g, this.palG, 'feliz', 128), 8, 10);
+        RW.dibujarImg(ctx, RW.sprites.retrato(g, this.palG, 'feliz', 128), 8, 10);
         ctx.restore();
         R(ctx, 300, 70, 68, 68, OSCURO);
         R(ctx, 302, 72, 64, 64, '#3a2a50');
-        ctx.drawImage(RW.sprites.retrato(this.perdedor, this.palP, 'derrota', 64), 302, 72);
+        RW.dibujarImg(ctx, RW.sprites.retrato(this.perdedor, this.palP, 'derrota', 64), 302, 72);
         RW.textoEstilo(ctx, '¡' + g.nombre + ' GANA!', 148, 26, 'oro', 3);
         if (this.r.perfecto) RW.textoEstilo(ctx, '¡DUELO PERFECTO!', 150, 56, 'azul', 1);
         ui.panel(ctx, 10, 150, 364, 42, '#ffffff');
@@ -618,7 +621,7 @@
       R(ctx, 0, 0, W(), RW.ALTO, '#0c0816');
       const pj = RW.personaje(RW.juego.p1);
       if (this.cuenta >= 0) {
-        ctx.drawImage(RW.sprites.retrato(pj, 0, 'derrota', 112), 30, 50);
+        RW.dibujarImg(ctx, RW.sprites.retrato(pj, 0, 'derrota', 112), 30, 50);
         RW.textoEstilo(ctx, '¿CONTINUAR?', 250, 60, 'oro', 3, 'centro');
         RW.textoEstilo(ctx, String(this.cuenta), 250, 110, 'rosa', 6, 'centro');
         RW.texto(ctx, 'START: SÍ   B: MÁS RÁPIDO', 250, 190, '#c8b8f0', { alinear: 'centro' });

@@ -105,6 +105,9 @@
   }
 
   function dibujar() {
+    // El juego se dibuja en 384x216 sobre un lienzo del doble (las imágenes reales usan todo el detalle)
+    ctx.setTransform(canvas.width / RW.ANCHO, 0, 0, canvas.height / RW.ALTO, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     ctx.save();
     J.escena.dibujar(ctx);
     ctx.restore();
